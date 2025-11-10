@@ -1,0 +1,127 @@
+
+Version: 2.0
+Alternatives: &alternativas
+  A1_iPad:
+  A2_Samsung:
+  A3_Xiaomi:
+  A4_Surface:
+
+Goal:
+  name: Mejor Tablet Universitaria
+  preferences:
+    pairwise:
+      # Comparaciones de Nivel 1 (hemos reemplazado "C1_Coste" por "C1.1_Precio")
+      - [C1.1_Precio, C2_ExpApuntes, 3]
+      - [C1.1_Precio, C3_Ecosistema, 4]
+      - [C1.1_Precio, C4_Portabilidad, 5]
+      - [C2_ExpApuntes, C3_Ecosistema, 2]
+      - [C2_ExpApuntes, C4_Portabilidad, 3]
+      - [C3_Ecosistema, C4_Portabilidad, 2]
+  children:
+    # --- C1 AHORA ES UN HIJO DIRECTO ---
+    C1.1_Precio:
+      # Comparación BASADA EN DATOS (Minimizar)
+      # A3(449) >> A2(649) > A1(748) > A4(798)
+      preferences:
+        pairwise:
+          - [A1_iPad, A2_Samsung, 1/2]
+          - [A1_iPad, A3_Xiaomi, 1/5]
+          - [A1_iPad, A4_Surface, 1]
+          - [A2_Samsung, A3_Xiaomi, 1/4]
+          - [A2_Samsung, A4_Surface, 3]
+          - [A3_Xiaomi, A4_Surface, 6]
+      children: *alternativas
+
+    # --- C2 (SIN CAMBIOS) ---
+    C2_ExpApuntes:
+      # ¿Qué es más importante para la experiencia de apuntes?
+      preferences:
+        pairwise:
+          - [C2.1_Lapiz, C2.2_Pantalla, 3]
+          - [C2.1_Lapiz, C2.3_Software, 2]
+          - [C2.3_Software, C2.2_Pantalla, 2]
+      children:
+        C2.1_Lapiz:
+          preferences:
+            pairwise:
+              - [A1_iPad, A2_Samsung, 2]
+              - [A1_iPad, A3_Xiaomi, 3]
+              - [A1_iPad, A4_Surface, 3]
+              - [A2_Samsung, A3_Xiaomi, 2]
+              - [A2_Samsung, A4_Surface, 2]
+              - [A3_Xiaomi, A4_Surface, 1]
+          children: *alternativas
+        C2.2_Pantalla:
+          preferences:
+            pairwise:
+              - [A1_iPad, A2_Samsung, 1/3]
+              - [A1_iPad, A3_Xiaomi, 1/7]
+              - [A1_iPad, A4_Surface, 1]
+              - [A2_Samsung, A3_Xiaomi, 1/5]
+              - [A2_Samsung, A4_Surface, 3]
+              - [A3_Xiaomi, A4_Surface, 7]
+          children: *alternativas
+        C2.3_Software:
+          preferences:
+            pairwise:
+              - [A1_iPad, A2_Samsung, 3]
+              - [A1_iPad, A3_Xiaomi, 5]
+              - [A1_iPad, A4_Surface, 4]
+              - [A2_Samsung, A3_Xiaomi, 3]
+              - [A2_Samsung, A4_Surface, 2]
+              - [A3_Xiaomi, A4_Surface, 1/2]
+          children: *alternativas
+    
+    # --- C3 (SIN CAMBIOS) ---
+    C3_Ecosistema:
+      preferences:
+        pairwise:
+          - [C3.1_SO, C3.2_Bateria, 1]
+      children:
+        C3.1_SO:
+          preferences:
+            pairwise:
+              - [A1_iPad, A2_Samsung, 2]
+              - [A1_iPad, A3_Xiaomi, 3]
+              - [A1_iPad, A4_Surface, 1]
+              - [A2_Samsung, A3_Xiaomi, 2]
+              - [A2_Samsung, A4_Surface, 1/2]
+              - [A3_Xiaomi, A4_Surface, 1/3]
+          children: *alternativas
+        C3.2_Bateria:
+          preferences:
+            pairwise:
+              - [A1_iPad, A2_Samsung, 1/2]
+              - [A1_iPad, A3_Xiaomi, 2]
+              - [A1_iPad, A4_Surface, 3]
+              - [A2_Samsung, A3_Xiaomi, 3]
+              - [A2_Samsung, A4_Surface, 4]
+              - [A3_Xiaomi, A4_Surface, 2]
+          children: *alternativas
+
+    # --- C4 (SIN CAMBIOS) ---
+    C4_Portabilidad:
+      preferences:
+        pairwise:
+          - [C4.1_Peso, C4.2_Tamano, 3]
+      children:
+        C4.1_Peso:
+          preferences:
+            pairwise:
+              - [A1_iPad, A2_Samsung, 4]
+              - [A1_iPad, A3_Xiaomi, 2] 
+              - [A1_iPad, A4_Surface, 5]
+              - [A2_Samsung, A3_Xiaomi, 1/3]
+              - [A2_Samsung, A4_Surface, 1] 
+              - [A3_Xiaomi, A4_Surface, 4]
+          children: *alternativas
+        C4.2_Tamano:
+          preferences:
+            pairwise:
+              - [A1_iPad, A2_Samsung, 3] 
+              - [A1_iPad, A3_Xiaomi, 1] 
+              - [A1_iPad, A4_Surface, 2] 
+              - [A2_Samsung, A3_Xiaomi, 1/3]
+              - [A2_Samsung, A4_Surface, 1/2]
+              - [A3_Xiaomi, A4_Surface, 2]
+          children: *alternativas
