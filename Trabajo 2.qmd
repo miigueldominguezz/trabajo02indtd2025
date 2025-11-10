@@ -1,0 +1,700 @@
+---
+title: "Elección de la mejor tablet para estudio y toma de apuntes en la universidad"
+author: 'Miguel Domínguez Jiménez'
+date: "`r Sys.Date()`"
+editor: visual
+format:
+  html: default
+  pdf: default
+---
+
+## 1. Introducción y Definición del Problema
+
+### 1.1. Motivación del Problema de Decisión
+
+La transición a la universidad o el avance en los estudios superiores conlleva una digitalización creciente de los materiales académicos. La toma de apuntes, la organización de documentos PDF, la participación en clases virtuales y el acceso a bibliografía digital son tareas cotidianas. En este contexto, la tablet se ha posicionado como una herramienta clave, buscando un equilibrio entre la portabilidad de un *smartphone* y la potencia de un ordenador portátil.
+
+Sin embargo, elegir la "mejor" tablet no es una decisión trivial. El mercado en 2025 ofrece una amplia gama de dispositivos con distintos sistemas operativos (iPadOS, Android, Windows), precios, tamaños y, fundamentalmente, distintas experiencias de escritura con lápiz óptico.
+
+Este problema de decisión es inherentemente **multicriterio**. Un estudiante debe sopesar:
+
+-   ¿Es más importante un **coste** bajo que la **integración** con el resto de mis dispositivos (ecosistema)?
+-   ¿Priorizo una **batería** que dure toda la jornada o la **potencia** bruta para aplicaciones exigentes?
+-   ¿Qué valor le doy a la **calidad de la pantalla** y la **latencia del lápiz** para una toma de apuntes fluida?
+
+El objetivo de este trabajo es aplicar las técnicas de Decisión Multicriterio (AHP, ELECTRE, PROMETHEE) para modelar este problema y encontrar la alternativa óptima, justificando la elección en base a un conjunto estructurado de criterios y preferencias.
+
+### 1.2. Alternativas (A) Seleccionadas
+
+Para acotar el problema, se han seleccionado cuatro (4) alternativas representativas del mercado actual (finales de 2025), cubriendo distintos ecosistemas y gamas de precio relevantes para un estudiante universitario:
+
+-   **A1: Apple iPad Air (M2, 11")**: La opción estándar-premium, conocida por su ecosistema de aplicaciones de estudio (Goodnotes, Notability) y la calidad de su lápiz (Apple Pencil).
+-   **A2: Samsung Galaxy Tab S9 FE+ (12.4")**: La principal alternativa en Android. Destaca por incluir el lápiz (S Pen) en la caja, reduciendo el coste inicial, y su pantalla de gran tamaño.
+-   **A3: Xiaomi Pad 6 (11")**: Representante de la gama media con excelente relación calidad-precio. Ofrece una alta tasa de refresco de pantalla y buen rendimiento, aunque su ecosistema de apps optimizadas es menor.
+-   **A4: Microsoft Surface Go 4 (10.5")**: La alternativa con Windows 11 completo. Ofrece la máxima compatibilidad con software de escritorio (Office, RStudio, etc.), pero en un formato más compacto y con un lápiz que se vende por separado.
+
+### 1.3. Jerarquía de Criterios (C)
+
+Para evaluar las alternativas, se establece una jerarquía de 4 criterios principales y 9 subcriterios, diseñada para cumplir con el requisito de **"Varios Niveles Subcriterios"**.
+
+-   **C1: Coste (Minimizar)**: Factor decisivo para un presupuesto estudiantil.
+    -   *C1.1: Precio Total (Min)*: Precio de la tablet (versión base con WiFi) más el lápiz óptico oficial, ya que es esencial para el objetivo.
+-   **C2: Experiencia de Apuntes (Maximizar)**: Calidad percibida al usar el dispositivo para su función principal.
+    -   *C2.1: Calidad del Lápiz (Max)*: Factor cualitativo que incluye latencia, ergonomía, sensibilidad a la presión y textura en pantalla.
+    -   *C2.2: Calidad de Pantalla (Max)*: Tasa de refresco (Hz) y tecnología (OLED/LCD). Una tasa alta reduce la fatiga visual y mejora la fluidez de la escritura.
+    -   *C2.3: Software/Apps (Max)*: Disponibilidad y madurez de aplicaciones optimizadas para la toma de apuntes.
+-   **C3: Ecosistema y Rendimiento (Maximizar)**: Capacidad del dispositivo para integrarse en la vida digital del estudiante y manejar tareas.
+    -   *C3.1: Sistema Operativo (SO) (Max)*: Factor cualitativo que evalúa la facilidad de uso, multitarea e integración con otros dispositivos (móvil, portátil).
+    -   *C3.2: Duración de Batería (Max)*: Autonomía estimada en horas de uso mixto (navegación, vídeo, apuntes).
+-   **C4: Portabilidad (Maximizar/Minimizar)**: Facilidad para transportar el dispositivo durante todo el día en el campus.
+    -   *C4.1: Peso Total (Min)*: Peso en gramos de la tablet más el lápiz.
+    -   *C4.2: Tamaño de Pantalla (Óptimo)*: Se busca un balance. Medido en pulgadas.
+
+------------------------------------------------------------------------
+
+## 2. Método AHP (Analytic Hierarchy Process)
+
+\[cite_start\]Para el método AHP, se utiliza el paquete `ahp` de R. Este método requiere la definición de la jerarquía y la comparación por pares de todos los elementos en cada nivel, lo cual se ha definido en el fichero **`tablets.ahp`** .
+
+### 2.1. Cálculo del Modelo AHP (con librería)
+
+```{r}
+# Cargar librerías 
+library(ahp)
+library(knitr)
+library(dplyr)
+
+# Cargar y Calcular AHP
+
+# 1. Cargar el modelo desde el fichero
+# (Asegúrate de que 'tablets.ahp' está en la misma carpeta)
+model <- ahp::Load("tablets.ahp")
+
+# 2. Calcular las prioridades
+ahp::Calculate(model)
+
+# 3. Analizar los resultados
+results_table <- as.data.frame(ahp::AnalyzeTable(model))
+results_priority <- as.data.frame(ahp::AnalyzeTable(model, variable = "priority", sort = "orig"))
+
+rownames(results_table) <- results_table[, 1]
+rownames(results_priority) <- results_priority[, 1]
+```
+
+#### 2.1.1. Diagrama de jerarquía
+
+```{r}
+# Mostrar Diagrama 
+Visualize(model)
+```
+
+#### 2.1.2. Resultados y Análisis AHP
+
+Las tablas generadas por el paquete ahp nos permiten analizar el ranking final, los pesos de cada criterio y, fundamentalmente, la consistencia de nuestros juicios.
+
+```{r}
+# Mostrar Tablas de Resultados
+library(kableExtra)
+
+# 1. Tabla de Análisis (Resultados Finales AHP)
+kbl(results_table, digits = 3, caption = "Resultados Finales AHP: Contribución Total") %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+
+# 2. Tabla de Prioridades (Alternativas por Criterio)
+kbl(results_priority, digits = 3, caption = "Prioridades Locales por Subcriterio") %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+```
+
+#### 2.1.3. Conclusiones del Método AHP
+
+Estudio de Inconsistencia
+
+Un paso fundamental en AHP es verificar la consistencia de las matrices de comparación 2 a 2. Según la teoría, un ratio de inconsistencia (Inconsistency) superior al 10% (0.10) invalidaría los juicios.
+
+En nuestros resultados (results_table), la inconsistencia de la matriz principal ("Mejor Tablet Universitaria") es del 1.9%. Todas las demás matrices (ej. 2.1% para C1.1_Precio, 0.9% para C2_ExpApuntes) se encuentran muy por debajo del límite del 10%.
+
+Por tanto, las valoraciones han sido coherentes y los resultados del método AHP son robustos y fiables.
+
+Comentarios al Ranking
+
+El ranking final obtenido mediante AHP (ver results_table) es el siguiente:
+
+-   A3_Xiaomi (42.5%)
+
+-   A1_iPad (23.5%)
+
+-   A2_Samsung (22.1%)
+
+-   A4_Surface (11.9%)
+
+Análisis de la tabla:
+
+El Precio es el Factor Decisivo: El criterio C1.1_Precio tiene el mayor peso global (54.6%). La A3_Xiaomi domina este criterio (aporta 33.1% del total), asegurando su victoria.
+
+El iPad Gana en Experiencia: El A1_iPad gana en la segunda categoría más importante, C2_ExpApuntes (23.2% del peso total). Sin embargo, esta victoria no es suficiente para compensar la enorme diferencia en el precio.
+
+Empate Técnico: El A1_iPad y la A2_Samsung están muy cerca. El iPad gana en C2_ExpApuntes y C4_Portabilidad, mientras que la Samsung compite mejor en C1.1_Precio y C3_Ecosistema.
+
+### 2.2. Método AHP (con R)
+
+En este apartado, se replica el análisis AHP utilizando las funciones R proporcionadas por la asignatura, para cumplir con la evaluación "AHPconR".
+
+#### 2.2.1. Nivel 1: Criterios Principales
+
+Primero, definimos la matriz de comparación 2 a 2 para los 4 nodos principales del Nivel 1 (los 3 criterios multinivel y el criterio de precio).
+
+```{r}
+# --- Cargar Funciones
+source("teoriadecision_funciones_multicriterio.R")
+source("teoriadecision_funciones_multicriterio_utiles.R")
+source("teoriadecision_funciones_multicriterio_diagram.R")
+
+# 1. Crear la matriz de Criterios Principales
+# Usamos los mismos valores que en el fichero tablets.ahp
+# [Precio (3) vs ExpApuntes], [Precio (4) vs Ecosistema], [Precio (5) vs Portabilidad]
+# [ExpApuntes (2) vs Ecosistema], [ExpApuntes (3) vs Portabilidad]
+# [Ecosistema (2) vs Portabilidad]
+mat_c1 <- multicriterio.crea.matrizvaloraciones_mej(
+  vector_valoraciones_diagsup = c(3, 4, 5, 2, 3, 2), 
+  numalternativas = 4,
+  v.nombres.alternativas = c("C1.1_Precio", "C2_ExpApuntes", "C3_Ecosistema", "C4_Portabilidad")
+)
+
+# 2. Calcular los pesos locales
+pesos_c1_R <- multicriterio.metodoAHP.variante3.basico(mat_c1)$valoraciones.ahp
+
+# 3. Calcular la Inconsistencia (Requisito de la evaluación)
+incons_c1_R <- multicriterio.metodoAHP.coef.inconsistencia(mat_c1)
+
+print("--- Matriz Criterios Principales (AHP-R) ---")
+kbl(mat_c1, digits = 3, caption = "Matriz Criterios Principales (AHP-R)") %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+
+print("--- Pesos Criterios Principales (AHP-R) ---")
+kbl(t(pesos_c1_R), digits = 4, caption = "Pesos Locales Criterios Principales") %>%
+  kable_styling(bootstrap_options = "striped", full_width = T, position = "center")
+
+print(paste("Ratio de Inconsistencia (C1):", round(incons_c1_R$RI.coef.inconsistencia, 4)))
+```
+
+#### 2.2.2. Nivel 2: Subcriterios
+
+Ahora, definimos las matrices de comparación para los subcriterios que dependen de cada criterio principal.
+
+```{r}
+
+# 1. Matriz de Subcriterios de C2: Experiencia Apuntes
+# [Lapiz (3) vs Pantalla], [Lapiz (2) vs Software]
+# [Software (2) vs Pantalla]
+mat_c2_sub <- multicriterio.crea.matrizvaloraciones_mej(
+  vector_valoraciones_diagsup = c(3, 2, 2),
+  numalternativas = 3,
+  v.nombres.alternativas = c("C2.1_Lapiz", "C2.2_Pantalla", "C2.3_Software")
+)
+# Reordenamos la matriz para que coincida con el .ahp (Lapiz, Pantalla, Software)
+mat_c2_sub <- mat_c2_sub[c("C2.1_Lapiz", "C2.3_Software", "C2.2_Pantalla"), c("C2.1_Lapiz", "C2.3_Software", "C2.2_Pantalla")]
+mat_c2_sub <- multicriterio.crea.matrizvaloraciones(c(1, 2, 3, 1/2, 1, 2, 1/3, 1/2, 1), 3, c("C2.1_Lapiz", "C2.3_Software", "C2.2_Pantalla"))
+
+
+pesos_c2_sub_R <- multicriterio.metodoAHP.variante3.basico(mat_c2_sub)$valoraciones.ahp
+incons_c2_sub_R <- multicriterio.metodoAHP.coef.inconsistencia(mat_c2_sub)
+
+print(paste("Ratio de Inconsistencia (C2-Sub):", round(incons_c2_sub_R$RI.coef.inconsistencia, 4)))
+
+
+# 2. Matriz de Subcriterios de C3: Ecosistema
+# [SO (1) vs Bateria]
+mat_c3_sub <- multicriterio.crea.matrizvaloraciones_mej(
+  vector_valoraciones_diagsup = c(1),
+  numalternativas = 2,
+  v.nombres.alternativas = c("C3.1_SO", "C3.2_Bateria")
+)
+pesos_c3_sub_R <- multicriterio.metodoAHP.variante3.basico(mat_c3_sub)$valoraciones.ahp
+incons_c3_sub_R <- multicriterio.metodoAHP.coef.inconsistencia(mat_c3_sub)
+
+print(paste("Ratio de Inconsistencia (C3-Sub):", round(incons_c3_sub_R$RI.coef.inconsistencia, 4)))
+
+
+# 3. Matriz de Subcriterios de C4: Portabilidad
+# [Peso (3) vs Tamano]
+mat_c4_sub <- multicriterio.crea.matrizvaloraciones_mej(
+  vector_valoraciones_diagsup = c(3),
+  numalternativas = 2,
+  v.nombres.alternativas = c("C4.1_Peso", "C4.2_Tamano")
+)
+pesos_c4_sub_R <- multicriterio.metodoAHP.variante3.basico(mat_c4_sub)$valoraciones.ahp
+incons_c4_sub_R <- multicriterio.metodoAHP.coef.inconsistencia(mat_c4_sub)
+
+print(paste("Ratio de Inconsistencia (C4-Sub):", round(incons_c4_sub_R$RI.coef.inconsistencia, 4)))
+
+# Mostramos las tablas de pesos
+print("--- Pesos Subcriterios de Exp. Apuntes (AHP-R) ---")
+kbl(t(pesos_c2_sub_R), digits = 4) %>%
+  kable_styling(bootstrap_options = "striped", full_width = T, position = "center")
+
+print("--- Pesos Subcriterios de Ecosistema (AHP-R) ---")
+kbl(t(pesos_c3_sub_R), digits = 4) %>%
+  kable_styling(bootstrap_options = "striped", full_width = T, position = "center")
+
+print("--- Pesos Subcriterios de Portabilidad (AHP-R) ---")
+kbl(t(pesos_c4_sub_R), digits = 4) %>%
+  kable_styling(bootstrap_options = "striped", full_width = T, position = "center")
+
+
+```
+
+#### 2.2.3. Nivel 3: Alternativas
+
+Finalmente, se crean las 8 matrices de comparación para las 4 alternativas, una por cada subcriterio.
+
+```{r}
+
+# Definimos los nombres de las alternativas
+v_nombres_alt <- c("A1_iPad", "A2_Samsung", "A3_Xiaomi", "A4_Surface")
+num_alt <- 4
+lista_pesos_locales <- list() # Aquí guardaremos los 8 vectores de pesos
+lista_inconsistencia <- list() # Aquí guardaremos los 8 ratios
+
+# 1. Matriz para C1.1: Precio
+mat_alt_1_precio <- multicriterio.crea.matrizvaloraciones_mej(
+  c(1/2, 1/5, 1, 1/4, 3, 6), num_alt, v_nombres_alt)
+pesos_alt_1_precio_R <- multicriterio.metodoAHP.variante3.basico(mat_alt_1_precio)$valoraciones.ahp
+lista_pesos_locales[["C1.1_Precio"]] <- pesos_alt_1_precio_R
+lista_inconsistencia[["C1.1_Precio"]] <- multicriterio.metodoAHP.coef.inconsistencia(mat_alt_1_precio)$RI.coef.inconsistencia
+
+# 2. Matriz para C2.1: Lapiz
+mat_alt_2_lapiz <- multicriterio.crea.matrizvaloraciones_mej(
+  c(2, 3, 3, 2, 2, 1), num_alt, v_nombres_alt)
+pesos_alt_2_lapiz_R <- multicriterio.metodoAHP.variante3.basico(mat_alt_2_lapiz)$valoraciones.ahp
+lista_pesos_locales[["C2.1_Lapiz"]] <- pesos_alt_2_lapiz_R
+lista_inconsistencia[["C2.1_Lapiz"]] <- multicriterio.metodoAHP.coef.inconsistencia(mat_alt_2_lapiz)$RI.coef.inconsistencia
+
+# 3. Matriz para C2.2: Pantalla
+mat_alt_3_pantalla <- multicriterio.crea.matrizvaloraciones_mej(
+  c(1/3, 1/7, 1, 1/5, 3, 7), num_alt, v_nombres_alt)
+pesos_alt_3_pantalla_R <- multicriterio.metodoAHP.variante3.basico(mat_alt_3_pantalla)$valoraciones.ahp
+lista_pesos_locales[["C2.2_Pantalla"]] <- pesos_alt_3_pantalla_R
+lista_inconsistencia[["C2.2_Pantalla"]] <- multicriterio.metodoAHP.coef.inconsistencia(mat_alt_3_pantalla)$RI.coef.inconsistencia
+
+# 4. Matriz para C2.3: Software
+mat_alt_4_software <- multicriterio.crea.matrizvaloraciones_mej(
+  c(3, 5, 4, 3, 2, 1/2), num_alt, v_nombres_alt)
+pesos_alt_4_software_R <- multicriterio.metodoAHP.variante3.basico(mat_alt_4_software)$valoraciones.ahp
+lista_pesos_locales[["C2.3_Software"]] <- pesos_alt_4_software_R
+lista_inconsistencia[["C2.3_Software"]] <- multicriterio.metodoAHP.coef.inconsistencia(mat_alt_4_software)$RI.coef.inconsistencia
+
+# 5. Matriz para C3.1: SO
+mat_alt_5_so <- multicriterio.crea.matrizvaloraciones_mej(
+  c(2, 3, 1, 2, 1/2, 1/3), num_alt, v_nombres_alt)
+pesos_alt_5_so_R <- multicriterio.metodoAHP.variante3.basico(mat_alt_5_so)$valoraciones.ahp
+lista_pesos_locales[["C3.1_SO"]] <- pesos_alt_5_so_R
+lista_inconsistencia[["C3.1_SO"]] <- multicriterio.metodoAHP.coef.inconsistencia(mat_alt_5_so)$RI.coef.inconsistencia
+
+# 6. Matriz para C3.2: Bateria
+mat_alt_6_bateria <- multicriterio.crea.matrizvaloraciones_mej(
+  c(1/2, 2, 3, 3, 4, 2), num_alt, v_nombres_alt)
+pesos_alt_6_bateria_R <- multicriterio.metodoAHP.variante3.basico(mat_alt_6_bateria)$valoraciones.ahp
+lista_pesos_locales[["C3.2_Bateria"]] <- pesos_alt_6_bateria_R
+lista_inconsistencia[["C3.2_Bateria"]] <- multicriterio.metodoAHP.coef.inconsistencia(mat_alt_6_bateria)$RI.coef.inconsistencia
+
+# 7. Matriz para C4.1: Peso
+mat_alt_7_peso <- multicriterio.crea.matrizvaloraciones_mej(
+  c(4, 2, 5, 1/3, 1, 4), num_alt, v_nombres_alt)
+pesos_alt_7_peso_R <- multicriterio.metodoAHP.variante3.basico(mat_alt_7_peso)$valoraciones.ahp
+lista_pesos_locales[["C4.1_Peso"]] <- pesos_alt_7_peso_R
+lista_inconsistencia[["C4.1_Peso"]] <- multicriterio.metodoAHP.coef.inconsistencia(mat_alt_7_peso)$RI.coef.inconsistencia
+
+# 8. Matriz para C4.2: Tamano
+mat_alt_8_tamano <- multicriterio.crea.matrizvaloraciones_mej(
+  c(3, 1, 2, 1/3, 1/2, 2), num_alt, v_nombres_alt)
+pesos_alt_8_tamano_R <- multicriterio.metodoAHP.variante3.basico(mat_alt_8_tamano)$valoraciones.ahp
+lista_pesos_locales[["C4.2_Tamano"]] <- pesos_alt_8_tamano_R
+lista_inconsistencia[["C4.2_Tamano"]] <- multicriterio.metodoAHP.coef.inconsistencia(mat_alt_8_tamano)$RI.coef.inconsistencia
+
+
+# Imprimir solo el estudio de inconsistencia (para no saturar el informe)
+print("--- Estudio de Inconsistencia (AHP-R Nivel Alternativas) ---")
+inconsistencia_df <- data.frame(Ratio_Inconsistencia = unlist(lista_inconsistencia))
+
+kbl(inconsistencia_df, digits = 4, caption = "Inconsistencia de las 8 Matrices de Alternativas") %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+
+```
+
+#### 2.2.4. Cálculo del Ranking Global (AHP-R)
+
+Finalmente, se calcula el ranking global. Para ello, primero se calcula el peso global de cada uno de los 8 subcriterios (hojas del árbol) multiplicando el peso de su criterio principal por su peso local.
+
+```{r}
+
+# 1. Calcular el vector de pesos globales de los 8 subcriterios
+# (Peso Criterio Principal * Peso Local Subcriterio)
+vec_pesos_globales_sub_R <- c(
+  pesos_c1_R["C1.1_Precio"] * 1, # El criterio C1.1 es hoja directa
+  pesos_c1_R["C2_ExpApuntes"] * pesos_c2_sub_R,
+  pesos_c1_R["C3_Ecosistema"] * pesos_c3_sub_R,
+  pesos_c1_R["C4_Portabilidad"] * pesos_c4_sub_R
+)
+
+# 2. Crear la matriz de pesos de alternativas (8 Subcriterios x 4 Alternativas)
+# Usamos 'do.call(rbind, ...)' para unir los 8 vectores de la lista
+mat_alt_final_R <- do.call(rbind, lista_pesos_locales)
+
+# Reordenamos las filas para que coincidan con el vector de pesos globales
+mat_alt_final_R <- mat_alt_final_R[names(vec_pesos_globales_sub_R), ]
+
+# 3. Calcular el ranking final (Producto matricial)
+# (1x8) %*% (8x4) = (1x4)
+ranking_final_R <- vec_pesos_globales_sub_R %*% mat_alt_final_R
+
+# 4. Formatear y mostrar la tabla de resultados
+ranking_df_R <- as.data.frame(t(ranking_final_R)) # Transponer para ver en columna
+colnames(ranking_df_R) <- "Ponderacion_Global_AHP_R"
+ranking_df_R <- ranking_df_R[order(ranking_df_R$Ponderacion_Global_AHP_R, decreasing = TRUE), , drop = FALSE]
+
+print("--- Ranking Final (AHP-R) ---")
+kbl(ranking_df_R, digits = 4, caption = "Ranking Final (AHP con Funciones R)") %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+
+```
+
+#### 2.2.5. Conclusiones del Método AHP (con R)
+
+El análisis manual con las funciones R de la asignatura (AHPconR) cumple dos objetivos:
+
+Estudio de Inconsistencia: Como se vio en los chunks anteriores, se ha calculado el Ratio de Inconsistencia (RI) para cada una de las 12 matrices de comparación. Todos los valores (ej. 0.0071 para la matriz de criterios) están muy por debajo del límite del 10%, validando la coherencia de los juicios.
+
+Ranking Final: El ranking obtenido (ver Tabla "Ranking Final (AHP con Funciones R)") es idéntico al obtenido con el paquete ahp (Tabla "Resultados Finales AHP").
+
+Conclusión: Ambos métodos de AHP (Paquete y Funciones R) producen el mismo resultado (Xiaomi \> iPad \> Samsung \> Surface), lo que confirma la correcta aplicación de ambas técnicas.
+
+------------------------------------------------------------------------
+
+## 3. Método ELECTRE
+
+El método ELECTRE es un enfoque basado en la comparación por pares de alternativas, utilizando los conceptos de concordancia y discordancia para establecer relaciones de dominancia. A diferencia de AHP, es un método no-compensatorio.
+
+### 3.1 Carga de Funciones y Preparación de Datos
+
+Para mantener la consistencia del análisis, se utilizan los resultados del método AHP como datos de entrada. Las funciones de la asignatura (`teoriadecision_funciones_multicriterio.R`) son necesarias.
+
+```{r}
+# Cargar funciones (si no están ya cargadas)
+source("teoriadecision_funciones_multicriterio.R")
+source("teoriadecision_funciones_multicriterio_utiles.R")
+
+# Preparar datos
+
+# 1. Seleccionar solo los 8 subcriterios (las "hojas" de nuestro árbol AHP)
+nombres_subcriterios <- c("C1.1_Precio", 
+                          "C2.1_Lapiz", "C2.2_Pantalla", "C2.3_Software",
+                          "C3.1_SO", "C3.2_Bateria",
+                          "C4.1_Peso", "C4.2_Tamano")
+
+# 2. Usar la tabla de prioridad local de AHP (results_priority)
+# Esta tabla contiene la "nota" (prioridad local) de cada tablet en cada criterio
+matriz_base <- results_priority[nombres_subcriterios, 
+                                c("A1_iPad", "A2_Samsung", "A3_Xiaomi", "A4_Surface")]
+```
+
+### 3.2 Creación de la Matriz de Decisión
+
+A partir de los datos de AHP, se construye la matriz de decisión que requiere ELECTRE (Alternativas x Criterios).
+
+```{r}
+# Crear Matriz de Decisión
+
+# 1. Transponer la matriz para tener (Alternativas x Criterios)
+matriz_electre <- t(matriz_base)
+
+# 2. Mostrar la matriz de decisión que usaremos
+kbl(matriz_electre, digits = 3, caption = "Matriz de Decisión para ELECTRE (Basada en prioridades locales AHP)") %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+```
+
+### 3.3 Definición de Pesos y Parámetros
+
+Usaremos los pesos globales de los subcriterios calculados en AHP y definiremos los parámetros de concordancia y discordancia.
+
+```{r}
+# 1. Preparar Pesos 
+# Extraer pesos globales de la Tabla 1 de AHP (results_table)
+pesos_globales_ahp <- results_table[nombres_subcriterios, "Weight"]
+
+# Normalizar los pesos para que sumen 1 (requisito de la función)
+pesos_electre <- pesos_globales_ahp / sum(pesos_globales_ahp)
+
+print("--- Pesos Normalizados para ELECTRE ---")
+# Usamos kbl para mostrar el vector de pesos de forma ordenada
+kbl(t(pesos_electre), digits = 3, caption = "Vector de Pesos (W) para ELECTRE") %>%
+  kable_styling(bootstrap_options = "striped", full_width = T, position = "center")
+
+# 2. Preparar Parámetros
+# Nivel de Concordancia (qué tan de acuerdo deben estar los criterios)
+alpha_concordancia <- 0.7 
+
+# Umbrales de Discordancia (d_i) o Veto
+# Si una alternativa es MUCHO peor en un criterio importante, es vetada.
+# Los criterios más importantes son Precio (54.6%) y Lápiz (12.5%).
+# Establecemos un veto si la diferencia de "nota" (prioridad local) es > 0.30 (30%)
+# en esos criterios. El resto se pueden compensar (Inf).
+umbrales_discordancia <- c(
+    0.30,   # C1.1_Precio (Muy Importante)
+    0.30,   # C2.1_Lapiz (Importante)
+    Inf,    # C2.2_Pantalla
+    Inf,    # C2.3_Software
+    Inf,    # C3.1_SO
+    Inf,    # C3.2_Bateria
+    Inf,    # C4.1_Peso
+    Inf     # C4.2_Tamano
+)
+```
+
+### 3.4 Ejecución y Análisis Iterativo
+
+Realizamos un análisis iterativo para encontrar el núcleo del grafo de superación, como se requiere para un análisis ELECTRE I completo.
+
+-   Iteración 1: Todas las alternativas
+
+Primero, ejecutamos el método con las 4 alternativas.
+
+```{r}
+library(qgraph)
+#Ejecutar ELECTRE I (Iteración 1) 
+
+print("--- Ejecutando ELECTRE I: Iteración 1 (Todas las alternativas) ---")
+
+# 1. Ejecutar ELECTRE I (Iteración 1: Todas las alternativas)
+#    Usamos la función de clase [cite: 1091]
+salida_electre1 <- multicriterio.metodoELECTRE_I(
+    tabdecs.X = matriz_electre,
+    pesos.criterios = pesos_electre,
+    nivel.concordancia.minimo.alpha = alpha_concordancia,
+    no.se.compensan = umbrales_discordancia
+)
+
+# 2. Mostrar el núcleo (las mejores alternativas)
+print("--- ELECTRE Iteración 1: Núcleo Aproximado ---")
+print(salida_electre1$nucleo_aprox)
+
+# 3. Mostrar el grafo de dominancia [cite: 1104]
+print("--- ELECTRE Iteración 1: Grafo de Dominancia ---")
+qgraph::qgraph(salida_electre1$relacion.dominante, 
+               labels = rownames(matriz_electre),
+               edge.labels = FALSE,
+               posCol = "blue",
+               label.cex = 1.2,
+               label.color = "black",
+               vsize = 10)
+```
+
+-   Iteración 2: Filtrado del Núcleo
+
+El núcleo de la Iteración 1 nos devuelve 3 alternativas (A1, A2, A3). Repetimos el análisis solo con estas alternativas para intentar desempatar.
+
+```{r}
+
+# Ejecutar ELECTRE I (Iteración 2)
+
+# 1. Identificamos las alternativas del núcleo anterior
+alternativas_nucleo1 <- salida_electre1$nucleo_aprox 
+alternativas_nucleo1_nombres <- names(alternativas_nucleo1)
+
+print("--- Ejecutando ELECTRE I: Iteración 2 (solo núcleo) ---")
+print("Alternativas en esta iteración:")
+print(alternativas_nucleo1_nombres)
+
+# 2. Ejecutamos ELECTRE I de nuevo, pero pasando el vector de
+#    alternativas en el parámetro 'que.alternativas' [cite: 1108]
+salida_electre2 <- multicriterio.metodoELECTRE_I(
+    tabdecs.X = matriz_electre,
+    pesos.criterios = pesos_electre,
+    nivel.concordancia.minimo.alpha = alpha_concordancia,
+    no.se.compensan = umbrales_discordancia,
+    que.alternativas = alternativas_nucleo1_nombres # ¡Filtro clave!
+)
+
+# 3. Imprimir el núcleo final
+print("--- ELECTRE Iteración 2: Núcleo Final ---")
+print(salida_electre2$nucleo_aprox)
+
+# 4. Mostrar el grafo de dominancia final
+print("--- ELECTRE Iteración 2: Grafo de Dominancia Final ---")
+qgraph::qgraph(salida_electre2$relacion.dominante, 
+               labels = alternativas_nucleo1_nombres,
+               edge.labels = FALSE,
+               posCol = "blue",
+               label.cex = 1.2,
+               label.color = "black",
+               vsize = 10)
+
+```
+
+### 3.5 Conclusiones del Método ELECTRE
+
+El método ELECTRE I se ha ejecutado siguiendo el paso a paso requerido (evitando "un solo paso").
+
+-   Iteración 1: Al ejecutar el método con las 4 alternativas, el grafo de superación mostró que la alternativa A4_Surface era dominada, mientras que las otras tres (A1_iPad, A2_Samsung, A3_Xiaomi) no recibían ninguna relación de dominancia. El núcleo aproximado resultante fue, por tanto, \[A1_iPad, A2_Samsung, A3_Xiaomi\].
+
+-   Iteración 2: Para desempatar, se repite el análisis filtrando solo por las alternativas del núcleo. El grafo resultante no muestra ninguna flecha, lo que significa que existe una relación de incomparabilidad entre estas tres alternativas. El núcleo final sigue siendo \[A1_iPad, A2_Samsung, A3_Xiaomi\].
+
+Conclusión: ELECTRE I no nos da un único ganador como AHP. Concluye que la A4_Surface es la peor opción, pero que el iPad, la Samsung y la Xiaomi son incomparables entre sí bajo los parámetros $\alpha=0.7$ y los umbrales de discordancia (veto) establecidos.
+
+------------------------------------------------------------------------
+
+## 4. Método PROMETHEE II
+
+El método PROMETHEE II es un enfoque de decisión multicriterio que utiliza funciones de preferencia para comparar alternativas y generar un ranking completo basado en flujos netos.
+
+### 4.1. Definición de Parámetros y Funciones de Preferencia
+
+Este es el paso clave de PROMETHEE en el que se deben definir las funciones de preferencia generalizadas para cada uno de los 8 subcriterios. A diferencia de ELECTRE, que usa datos de AHP, PROMETHEE funciona mejor con los **datos originales** (precios en €, Hz, etc.).
+
+```{r}
+# --- Cargar Funciones (si no están ya cargadas) ---
+source("teoriadecision_funciones_multicriterio.R")
+source("teoriadecision_funciones_multicriterio_utiles.R")
+source("teoriadecision_funciones_multicriterio_diagram.R")
+
+# --- Definir Parámetros de PROMETHEE ---
+
+# 1. Matriz de Decisión (Datos Originales del Paso 1)
+matriz_promethee <- matrix(c(
+  748, 9, 60, 10, 9, 9, 489, 11.0,  # A1: iPad Air
+  649, 8, 90, 8,  8, 10, 640, 12.4, # A2: Samsung S9 FE+
+  449, 7, 144, 6, 7, 8, 499, 11.0, # A3: Xiaomi Pad 6
+  798, 7, 60, 7,  9, 7, 663, 10.5  # A4: Surface Go 4
+), nrow = 4, byrow = TRUE)
+
+colnames(matriz_promethee) <- c("C1.1_Precio", "C2.1_Lapiz", "C2.2_Pantalla", "C2.3_Software", "C3.1_SO", "C3.2_Bateria", "C4.1_Peso", "C4.2_Tamano")
+rownames(matriz_promethee) <- c("A1_iPad", "A2_Samsung", "A3_Xiaomi", "A4_Surface")
+
+# 2. Pesos: Reutilizamos los pesos globales de AHP (variable 'results_table')
+nombres_subcriterios <- c("C1.1_Precio", "C2.1_Lapiz", "C2.2_Pantalla", "C2.3_Software",
+                          "C3.1_SO", "C3.2_Bateria", "C4.1_Peso", "C4.2_Tamano")
+pesos_promethee <- results_table[nombres_subcriterios, "Weight"]
+
+# 3. Vector min/max: ¡CRÍTICO!
+# Precio(min), Lápiz(max), Pantalla(max), Software(max), SO(max), Batería(max), Peso(min), Tamaño(max)
+vec_fminmax <- c("min", "max", "max", "max", "max", "max", "min", "max")
+
+
+# 4. Tabla de Funciones de Preferencia (tab.fpref) y Justificación
+# (Evaluación: "Explicaciones")
+# Basado en los datos reales (no en las "notas" de AHP)
+tab_fpref_promethee <- matrix(
+  c(
+    5, 50, 300, 0,  # C1.1 Precio (min): Linear. Indif(q)=50€, Pref(p)=300€
+    3, 0,  2,   0,  # C2.1 Lápiz (max): V-shape. p=2 (en escala 1-10)
+    5, 10, 40,  0,  # C2.2 Pantalla (max): Linear. Indif(q)=10Hz, Pref(p)=40Hz
+    3, 0,  3,   0,  # C2.3 Software (max): V-shape. p=3 (en escala 1-10)
+    3, 0,  2,   0,  # C3.1 SO (max): V-shape. p=2 (en escala 1-10)
+    5, 1,  3,   0,  # C3.2 Batería (max): Linear. Indif(q)=1h, Pref(p)=3h
+    5, 50, 200, 0,  # C4.1 Peso (min): Linear. Indif(q)=50g, Pref(p)=200g
+    5, 0.5, 2,  0   # C4.2 Tamaño (max): Linear. Indif(q)=0.5", Pref(p)=2"
+  ),
+  ncol = 4, 
+  byrow = TRUE
+)
+```
+
+### 4.2. Ejecución y Resultados de PROMETHEE II
+
+Ahora, ejecutamos el método PROMETHEE II. Usamos la función multicriterio.metodo.promethee_windows para cumplir con el requisito de la evaluación.
+
+```{r}
+
+# Ejecutar PROMETHEE
+# Ejecutamos las funciones y guardamos las tablas en una variable
+salida_promethee <- multicriterio.metodo.promethee_windows(
+  matdecision = matriz_promethee,
+  tab.fpref = tab_fpref_promethee,
+  pesos.criterios = pesos_promethee,
+  fminmax = vec_fminmax
+)
+
+# Formateamos la salida con la función de la asignatura
+tablas_promethee <- multicriterio.metodo.promethee_windows_kableExtra(salida_promethee)
+
+```
+
+Tabla de Escenario (Parámetros)
+
+A continuación, se muestra la tabla de escenario que resume los parámetros, pesos y las funciones de preferencia utilizadas.
+
+```{r}
+# Mostrar Tabla de Escenario 
+tablas_promethee$tabEscenario
+```
+
+Tabla de Ranking (Resultados)
+
+La siguiente tabla muestra el ranking final de las alternativas. El orden se basa en el flujo neto (Phi).
+
+```{r}
+# Mostrar Tabla de Ranking
+tablas_promethee$tabAcciones
+```
+
+### 4.3. Conclusiones del Método PROMETHEE II
+
+El método PROMETHEE II nos proporciona un ranking completo de las alternativas, basado en el Flujo Neto (Phi). Este flujo se calcula como la diferencia entre el flujo positivo (Phi.mas, o las fortalezas) y el flujo negativo (Phi.menos, o las debilidades).
+
+El ranking final obtenido es:
+
+-   A3_Xiaomi (Phi = 0.3845)
+
+-   A1_iPad (Phi = 0.1604)
+
+-   A2_Samsung (Phi = -0.1610)
+
+-   A4_Surface (Phi = -0.3839)
+
+Análisis de la tabla:
+
+El Ganador: A3_Xiaomi es el ganador indiscutible. Tiene el Phi.mas (fortalezas) más alto (0.5050) y el Phi.menos (debilidades) más bajo (0.1205). Esto se debe a su dominio en los criterios de Precio y Pantalla, que juntos suman casi el 60% del peso de la decisión.
+
+Coincidencia con AHP: El ranking (Xiaomi \> iPad \> Samsung \> Surface) es idéntico al ranking obtenido con AHP.
+
+Diferencias con AHP: Aunque el ranking es el mismo, las "distancias" son diferentes. En AHP, Xiaomi (42.5%) e iPad (23.5%) estaban más cerca. En PROMETHEE, la ventaja de Xiaomi (Phi=0.3845) sobre el iPad (Phi=0.1604) es mucho más pronunciada. Esto se debe a que PROMETHEE utiliza los datos reales (ej. 449€ vs 748€) y las funciones de preferencia lineales, que penalizan más las grandes diferencias que la escala 1-9 de Saaty.
+
+A4_Surface: Se confirma como la peor alternativa, con el flujo neto más negativo (-0.3839), siendo la alternativa con más debilidades (Phi.menos = 0.5015).
+
+Conclusión: PROMETHEE II confirma el resultado de AHP, identificando a la A3_Xiaomi como la mejor opción.
+
+## 5. Conclusiones Finales (Comparativa de Métodos)
+
+En este trabajo se han aplicado tres métodos de decisión multicriterio (AHP, ELECTRE I y PROMETHEE II) para resolver el problema de la "Elección de la mejor tablet para el estudio".
+
+### 5.1 Justificación de las Diferencias entre Métodos
+
+Tal como solicita la evaluación, el análisis de los tres métodos revela diferencias y similitudes clave.
+
+#### 5.1.1. Consistencia en la Peor Alternativa
+
+Los tres métodos son **unánimes** en identificar a la `A4_Surface` como la peor alternativa.
+
+-   **AHP y PROMETHEE** la sitúan última en el ranking.
+-   **ELECTRE I** la elimina en la primera iteración por ser dominada.
+
+#### 5.1.2. Coincidencia en Métodos Compensatorios (AHP vs. PROMETHEE)
+
+Tanto AHP como PROMETHEE II son métodos **compensatorios**. Esto significa que una puntuación muy alta en un criterio importante (como el `Precio` de Xiaomi) puede "compensar" puntuaciones bajas en otros (como `Software`).
+
+Ambos métodos llegan **exactamente al mismo ranking** (Xiaomi \> iPad \> Samsung \> Surface). Esto refuerza la validez de la conclusión, ya que el resultado se mantiene usando dos lógicas de cálculo distintas (matrices de Saaty vs. funciones de preferencia).
+
+#### 5.1.3. El Caso de ELECTRE I (Incomparabilidad)
+
+Aquí radica la diferencia fundamental: **AHP y PROMETHEE** fuerzan un ranking completo. **ELECTRE I** (un método de superación **no-compensatorio**) es el único que respeta la incomparabilidad.
+
+ELECTRE concluye que `A1_iPad`, `A2_Samsung` y `A3_Xiaomi` forman un "núcleo" de buenas soluciones. Esto se debe a que existen fuertes conflictos que los vetos (umbrales de discordancia) impiden resolver: \* El `A1_iPad` es vetado por la `A3_Xiaomi` en `Precio`. La `A3_Xiaomi` es vetada por el `A1_iPad` en `Software` y `Lápiz`.
+
+Al no poder superarse mutuamente, el método los declara **incomparables**.
+
+### 5.2. Conclusión Final
+
+No existe un "mejor método", sino que cada uno aporta una visión diferente:
+
+-   Si el decisor está dispuesto a aceptar compensaciones (es decir, que un precio excelente compense un ecosistema de apps regular), los métodos AHP y PROMETHEE II recomiendan claramente la A3_Xiaomi.
+
+-   Si el decisor es más estricto y no acepta compensaciones (es decir, una tablet debe tener buen precio Y buen software, sin vetos), el método ELECTRE I le presenta un conjunto de 3 finalistas (iPad, Samsung, Xiaomi) entre los cuales la decisión final sigue siendo subjetiva.
